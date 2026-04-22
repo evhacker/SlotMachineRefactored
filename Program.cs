@@ -5,7 +5,7 @@ class Program
     static void Main(string[] args)
     {
         int balance = Constants.INITIAL_BALANCE;
-        int mode;
+        int numberModeUser;
         int dim;
 
         UIMethods.DisplayMessage(
@@ -15,9 +15,9 @@ class Program
         while (balance > 0)
         {
             //Let user choose mode
-            mode = UIMethods.GetUserInput(
-                "Please choose a mode (enter number of the mode and press enter):\n1 Middle Line\n2 All Horizontal " +
-                "\n3 All Vertical \n4 Both Diagonals");
+                numberModeUser = UIMethods.GetUserInput(
+                    "Please choose a mode (enter number of the mode and press enter):\n1 Middle Line\n2 All Horizontal " +
+                    "\n3 All Vertical \n4 Both Diagonals");
 
             //Let user choose machine size
             dim = UIMethods.GetUserInput(
@@ -42,130 +42,154 @@ class Program
                 }
             }
 
-            //Print array
-            UIMethods.PrintArray(array);
-
             //Evaluation
 
             bool boolWin = true;
             int countWins = 0;
 
-            if (mode == Constants.MODE_MIDDLE_LINE)
+            if (Enum.IsDefined(typeof(Constants.PlayMode), numberModeUser))
             {
-                balance -= Constants.WAGER_PER_LINE;
-                int rowToCheck = (size + 1) / 2;
+                Constants.PlayMode mode = (Constants.PlayMode)numberModeUser;
+                
+                //Print array
+                UIMethods.PrintArray(array);
 
-                for (int col = 1; col < size; col++)
+                switch (mode)
                 {
-                    if (array[rowToCheck, col] != array[rowToCheck, col - 1])
+                    case Constants.PlayMode.MiddleLine:
                     {
-                        boolWin = false;
-                    }
-                }
+                        balance -= Constants.WAGER_PER_LINE;
+                        int rowToCheck = (size + 1) / 2;
 
-                if (boolWin)
-                {
-                    countWins++;
-                }
-            }
-
-            if (mode == Constants.MODE_ALL_HORIZONTAL)
-            {
-                balance -= Constants.WAGER_PER_LINE * size;
-                for (int row = 0; row < size; row++)
-                {
-                    bool boolWinRow = true;
-                    for (int col = 1; col < size; col++)
-                    {
-                        if (array[row, col] != array[row, col - 1])
+                        for (int col = 1; col < size; col++)
                         {
-                            boolWinRow = false;
+                            if (array[rowToCheck, col] != array[rowToCheck, col - 1])
+                            {
+                                boolWin = false;
+                            }
                         }
-                    }
 
-                    if (boolWinRow)
-                    {
-                        countWins++;
-                    }
-                }
-            }
-
-            if (mode == Constants.MODE_ALL_VERTICAL)
-            {
-                balance -= Constants.WAGER_PER_LINE * size;
-                for (int col = 0; col < size; col++)
-                {
-                    bool boolWinCol = true;
-                    for (int row = 1; row < size; row++)
-                    {
-                        if (array[row, col] != array[row - 1, col])
+                        if (boolWin)
                         {
-                            boolWinCol = false;
+                            countWins++;
                         }
+
+                        break;
                     }
 
-                    if (boolWinCol)
+                    case Constants.PlayMode.AllHorizontals:
                     {
-                        countWins++;
+                        balance -= Constants.WAGER_PER_LINE * size;
+                        for (int row = 0; row < size; row++)
+                        {
+                            bool boolWinRow = true;
+                            for (int col = 1; col < size; col++)
+                            {
+                                if (array[row, col] != array[row, col - 1])
+                                {
+                                    boolWinRow = false;
+                                }
+                            }
+
+                            if (boolWinRow)
+                            {
+                                countWins++;
+                            }
+                        }
+
+                        break;
+                    }
+
+                    case Constants.PlayMode.AllVerticals:
+                    {
+                        balance -= Constants.WAGER_PER_LINE * size;
+                        for (int col = 0; col < size; col++)
+                        {
+                            bool boolWinCol = true;
+                            for (int row = 1; row < size; row++)
+                            {
+                                if (array[row, col] != array[row - 1, col])
+                                {
+                                    boolWinCol = false;
+                                }
+                            }
+
+                            if (boolWinCol)
+                            {
+                                countWins++;
+                            }
+                        }
+
+                        break;
+                    }
+
+
+                    case Constants.PlayMode.Diagonals:
+                    {
+                        balance -= Constants.WAGER_PER_LINE * 2;
+                        //Diagonal 1
+                        bool boolWinDiag = true;
+                        int row = 1;
+                        for (int col = 1; col < size; col++)
+                        {
+                            if (array[row, col] != array[row - 1, col - 1])
+                            {
+                                boolWinDiag = false;
+                            }
+
+                            row++;
+                        }
+
+                        if (boolWinDiag)
+                        {
+                            countWins++;
+                        }
+
+                        //Diagonal 2
+                        boolWinDiag = true;
+                        row = 1;
+                        for (int col = size - 2; col >= 0; col--)
+                        {
+                            if (array[row, col] != array[row - 1, col + 1])
+                            {
+                                boolWinDiag = false;
+                            }
+
+                            row++;
+                        }
+
+                        if (boolWinDiag)
+                        {
+                            countWins++;
+                        }
+
+                        break;
                     }
                 }
+
+
+                if (countWins > 0)
+                {
+                    UIMethods.DisplayMessage($"Congrats you win {countWins * Constants.WIN_PER_LINE} Dollars!");
+                    balance += countWins * Constants.WIN_PER_LINE;
+                }
+                else
+                {
+                    UIMethods.DisplayMessage("You loose...");
+                    balance -= countWins * Constants.WIN_PER_LINE;
+                }
+
+                UIMethods.DisplayMessage($"Your balance is: {balance}");
+                UIMethods.DisplayMessage("Press any key to continue...");
+                UIMethods.ReadKey();
             }
 
-            if (mode == Constants.MODE_BOTH_DIAGONALS)
-            {
-                balance -= Constants.WAGER_PER_LINE * 2;
-                //Diagonal 1
-                bool boolWinDiag = true;
-                int row = 1;
-                for (int col = 1; col < size; col++)
-                {
-                    if (array[row, col] != array[row - 1, col - 1])
-                    {
-                        boolWinDiag = false;
-                    }
-
-                    row++;
-                }
-
-                if (boolWinDiag)
-                {
-                    countWins++;
-                }
-
-                //Diagonal 2
-                boolWinDiag = true;
-                row = 1;
-                for (int col = size - 2; col >= 0; col--)
-                {
-                    if (array[row, col] != array[row - 1, col + 1])
-                    {
-                        boolWinDiag = false;
-                    }
-
-                    row++;
-                }
-
-                if (boolWinDiag)
-                {
-                    countWins++;
-                }
-            }
-
-
-            if (countWins > 0)
-            {
-                UIMethods.DisplayMessage($"Congrats you win {countWins * Constants.WIN_PER_LINE} Dollars!");
-                balance += countWins * Constants.WIN_PER_LINE;
-            }
             else
             {
-                UIMethods.DisplayMessage("You loose...");
-                balance -= countWins * Constants.WIN_PER_LINE;
+                UIMethods.DisplayMessage("Number is invalid!");
+                UIMethods.DisplayMessage("Press any key to continue...");
+                UIMethods.ReadKey();
             }
-
-            UIMethods.DisplayMessage($"Your balance is: {balance}");
-            UIMethods.DisplayMessage("Press any key to continue...");
-            UIMethods.ReadKey();
         }
 
         UIMethods.DisplayMessage("No more money left... Game ends!");
