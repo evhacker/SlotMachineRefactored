@@ -15,9 +15,9 @@ class Program
         while (balance > 0)
         {
             //Let user choose mode
-                numberModeUser = UIMethods.GetUserInput(
-                    "Please choose a mode (enter number of the mode and press enter):\n1 Middle Line\n2 All Horizontal " +
-                    "\n3 All Vertical \n4 Both Diagonals");
+            numberModeUser = UIMethods.GetUserInput(
+                "Please choose a mode (enter number of the mode and press enter):\n1 Middle Line\n2 All Horizontal " +
+                "\n3 All Vertical \n4 Both Diagonals");
 
             //Let user choose machine size
             dim = UIMethods.GetUserInput(
@@ -30,141 +30,40 @@ class Program
             //Initialize Array
             int[,] array = new int [size, size];
 
-            //Declare random
-            Random rng = new Random();
-
-            //Populate array
-            for (int row = 0; row < size; row++)
-            {
-                for (int col = 0; col < size; col++)
-                {
-                    array[row, col] = rng.Next(0, 3);
-                }
-            }
+            array = LogicMethods.PopulateArray(array);
 
             //Evaluation
 
-            bool boolWin = true;
             int countWins = 0;
 
             if (Enum.IsDefined(typeof(Constants.PlayMode), numberModeUser))
             {
                 Constants.PlayMode mode = (Constants.PlayMode)numberModeUser;
-                
+
                 //Print array
                 UIMethods.PrintArray(array);
 
                 switch (mode)
                 {
                     case Constants.PlayMode.MiddleLine:
-                    {
                         balance -= Constants.WAGER_PER_LINE;
-                        int rowToCheck = (size + 1) / 2;
-
-                        for (int col = 1; col < size; col++)
-                        {
-                            if (array[rowToCheck, col] != array[rowToCheck, col - 1])
-                            {
-                                boolWin = false;
-                            }
-                        }
-
-                        if (boolWin)
-                        {
-                            countWins++;
-                        }
-
+                        countWins = LogicMethods.EvaluateMiddleLine(array);
                         break;
-                    }
 
                     case Constants.PlayMode.AllHorizontals:
-                    {
                         balance -= Constants.WAGER_PER_LINE * size;
-                        for (int row = 0; row < size; row++)
-                        {
-                            bool boolWinRow = true;
-                            for (int col = 1; col < size; col++)
-                            {
-                                if (array[row, col] != array[row, col - 1])
-                                {
-                                    boolWinRow = false;
-                                }
-                            }
-
-                            if (boolWinRow)
-                            {
-                                countWins++;
-                            }
-                        }
-
+                        countWins = LogicMethods.EvaluateAllHorizontals(array);
                         break;
-                    }
 
                     case Constants.PlayMode.AllVerticals:
-                    {
                         balance -= Constants.WAGER_PER_LINE * size;
-                        for (int col = 0; col < size; col++)
-                        {
-                            bool boolWinCol = true;
-                            for (int row = 1; row < size; row++)
-                            {
-                                if (array[row, col] != array[row - 1, col])
-                                {
-                                    boolWinCol = false;
-                                }
-                            }
-
-                            if (boolWinCol)
-                            {
-                                countWins++;
-                            }
-                        }
-
+                        countWins = LogicMethods.EvaluateAllVerticals(array);
                         break;
-                    }
-
 
                     case Constants.PlayMode.Diagonals:
-                    {
                         balance -= Constants.WAGER_PER_LINE * 2;
-                        //Diagonal 1
-                        bool boolWinDiag = true;
-                        int row = 1;
-                        for (int col = 1; col < size; col++)
-                        {
-                            if (array[row, col] != array[row - 1, col - 1])
-                            {
-                                boolWinDiag = false;
-                            }
-
-                            row++;
-                        }
-
-                        if (boolWinDiag)
-                        {
-                            countWins++;
-                        }
-
-                        //Diagonal 2
-                        boolWinDiag = true;
-                        row = 1;
-                        for (int col = size - 2; col >= 0; col--)
-                        {
-                            if (array[row, col] != array[row - 1, col + 1])
-                            {
-                                boolWinDiag = false;
-                            }
-
-                            row++;
-                        }
-
-                        if (boolWinDiag)
-                        {
-                            countWins++;
-                        }
-
+                        countWins = LogicMethods.EvaluateDiagonals(array);
                         break;
-                    }
                 }
 
 
